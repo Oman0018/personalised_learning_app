@@ -74,46 +74,52 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openDevJump() {
     showModalBottomSheet(
       context: context,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const ListTile(
-              title: Text('Developer Jump'),
-              subtitle: Text('Quickly navigate to key screens'),
+      builder:
+          (_) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const ListTile(
+                  title: Text('Developer Jump'),
+                  subtitle: Text('Quickly navigate to key screens'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.recommend_outlined),
+                  title: const Text('Recommendations'),
+                  onTap:
+                      () => Navigator.popAndPushNamed(
+                        context,
+                        '/recommendations',
+                      ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.menu_book_outlined),
+                  title: const Text('Learning Module'),
+                  onTap: () => Navigator.popAndPushNamed(context, '/learning'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.rate_review_outlined),
+                  title: const Text('Feedback'),
+                  onTap: () => Navigator.popAndPushNamed(context, '/feedback'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.loop_outlined),
+                  title: const Text('Loop View'),
+                  onTap: () => Navigator.popAndPushNamed(context, '/loop'),
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.recommend_outlined),
-              title: const Text('Recommendations'),
-              onTap: () => Navigator.popAndPushNamed(context, '/recommendations'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.menu_book_outlined),
-              title: const Text('Learning Module'),
-              onTap: () => Navigator.popAndPushNamed(context, '/learning'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.rate_review_outlined),
-              title: const Text('Feedback'),
-              onTap: () => Navigator.popAndPushNamed(context, '/feedback'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.loop_outlined),
-              title: const Text('Loop View'),
-              onTap: () => Navigator.popAndPushNamed(context, '/loop'),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final subtitle = kUseMock
-        ? 'Mock mode: backend calls are faked'
-        : 'Live mode: calling $kBaseUrl';
+    final subtitle =
+        kUseMock
+            ? 'Mock mode: backend calls are faked'
+            : 'Live mode: calling $kBaseUrl';
 
     return Scaffold(
       appBar: AppBar(
@@ -161,9 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
             DropdownButton<String>(
               value: _selectedContentType,
               isExpanded: true,
-              items: _contentTypes
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                  .toList(),
+              items:
+                  _contentTypes
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
               onChanged: (v) => setState(() => _selectedContentType = v!),
             ),
             const SizedBox(height: 10),
@@ -177,10 +184,14 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 18),
             ElevatedButton(
               onPressed: _loading ? null : _submit,
-              child: _loading
-                  ? const SizedBox(
-                      height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Get Recommendation'),
+              child:
+                  _loading
+                      ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Text('Get Recommendation'),
             ),
             const SizedBox(height: 20),
             if (_recs.isNotEmpty)
@@ -191,7 +202,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ListTile(
                     title: Text(r),
                     trailing: TextButton(
-                      onPressed: () => Navigator.pushNamed(context, '/learning'),
+                      onPressed:
+                          () => Navigator.pushNamed(context, '/learning'),
                       child: const Text('Start'),
                     ),
                   ),
@@ -207,12 +219,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: kShowDevJump
-          ? FloatingActionButton(
-              onPressed: _openDevJump,
-              child: const Icon(Icons.developer_mode),
-            )
-          : null,
+      floatingActionButton:
+          kShowDevJump
+              ? FloatingActionButton(
+                onPressed: _openDevJump,
+                child: const Icon(Icons.developer_mode),
+              )
+              : null,
     );
   }
 }
