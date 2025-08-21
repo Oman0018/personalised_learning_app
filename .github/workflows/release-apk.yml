@@ -1,31 +1,103 @@
+# .github/workflows/release-apk.yml
 name: Build Release APK
+run-name: Build APK for ${{ github.ref_name || 'manual' }}
 
 on:
   push:
-    branches:
-      - main
+    tags: ["v*"]
+  workflow_dispatch: {}
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+# Run all commands inside the Flutter app directory
+defaults:
+  run:
+    working-directory: personalised_learning_app
 
 jobs:
-  build:
+  build-apk:
+    name: Build APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      ARTIFACT_SUFFIX: ${{ github.ref_name || 'manual' }}
+      FLUTTER_VERSION: "3.29.2"
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          flutter-version: '3.19.0'  # pick your version
+          fetch-depth: 0
+
+      - name: Set up Java (Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # ---- Install Android SDK & packages (provides sdkmanager) ----
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            cmdline-tools;latest
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.0
+
+      # ---- Install Flutter (manual, reliable) ----
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        run: |
+          set -e
+          echo "Downloading Flutter $FLUTTER_VERSION..."
+          curl -L -o flutter.tar.xz \
+            https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
+          sudo tar -xJf flutter.tar.xz -C /opt
+          echo "/opt/flutter/bin" >> $GITHUB_PATH
+          echo "/opt/flutter/bin/cache/dart-sdk/bin" >> $GITHUB_PATH
+          flutter --version
+          flutter doctor -v
+
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Verify pubspec.yaml
+        run: |
+          pwd
+          ls -la
+          test -f pubspec.yaml && echo "✅ pubspec.yaml found" || (echo "❌ pubspec.yaml missing" && exit 1)
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Analyze
+        run: flutter analyze
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+      - name: Run tests
+        run: flutter test --no-pub
+
+      - name: Build debug APK
+        run: flutter build apk --debug --no-tree-shake-icons
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: app-debug-${{ env.ARTIFACT_SUFFIX }}.apk
+          # path relative to repo root, so include subdir
+          path: personalised_learning_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build release APK (unsigned)
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ env.ARTIFACT_SUFFIX }}.apk
+          path: personalised_learning_app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
