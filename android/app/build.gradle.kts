@@ -1,47 +1,53 @@
 // android/app/build.gradle.kts
+
 plugins {
     id("com.android.application")
-    id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id("org.jetbrains.kotlin.android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "com.example.personalised_learning_app"
 
-    // Pin SDK versions to match CI workflow
-    compileSdk = 34
-    buildToolsVersion = "34.0.0"
-    ndkVersion = flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-
+    // Required by shared_preferences_android (and fine for everything else)
+    compileSdk = 35
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.personalised_learning_app"
-
-        // Pin targetSdk to same as compileSdk
         minSdk = flutter.minSdkVersion
-        targetSdk = 34
+        targetSdk = 35
 
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Use the built-in debug signing; release can be set up later
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        debug {
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        release {
+            signingConfig = signingConfigs.getByName("debug") // temporary for dev
+            isMinifyEnabled = false
+            isShrinkResources = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
+
+    // AGP 8+ and Flutter prefer Java 17
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = "17" }
+
+    // No ABI splits; Flutter handles packaging
+    // (remove the whole 'splits' or any custom copy tasks you previously added)
 }
 
 flutter {

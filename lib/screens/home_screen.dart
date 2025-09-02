@@ -11,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // --- existing controllers (kept for Advanced form) ---
   final TextEditingController _quizCtrl = TextEditingController(text: '75');
   final TextEditingController _timeCtrl = TextEditingController(text: '45');
   final TextEditingController _engageCtrl = TextEditingController(text: '4');
@@ -61,9 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _recs = ['Error: ${e.toString()}'];
       });
     } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -137,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
+            // status line
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
@@ -147,53 +147,110 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            TextField(
-              controller: _quizCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Average Quiz Score (0–100)',
+
+            const SizedBox(height: 8),
+            const Text(
+              'Welcome 👋',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Let’s personalise your learning path.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+
+            // PRIMARY CTA — aligns with supervisor’s flow
+            ElevatedButton.icon(
+              icon: const Icon(Icons.assignment_turned_in_outlined),
+              label: const Text('Start Diagnostic'),
+              onPressed: () => Navigator.pushNamed(context, '/quiz'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _timeCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Average Time Spent (min)',
+            const SizedBox(height: 12),
+
+            // SECONDARY CTA — quick recs (uses your existing form below)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.recommend_outlined),
+              label: const Text('Quick Recommendation (skip quiz)'),
+              onPressed: () async {
+                // Scroll to the advanced section or simply expand it—here we do nothing special.
+                // Optionally: navigate straight to Recommendations if you prefer:
+                // Navigator.pushNamed(context, '/recommendations');
+              },
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              keyboardType: TextInputType.number,
             ),
+
+            const SizedBox(height: 24),
+
+            // Advanced inputs (your existing UI), collapsible to keep the hub clean
+            ExpansionTile(
+              initiallyExpanded: false,
+              title: const Text('Advanced (skip quiz) — enter parameters'),
+              children: [
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _quizCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Average Quiz Score (0–100)',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _timeCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Average Time Spent (min)',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 10),
+                const Text('Content Type Preference'),
+                DropdownButton<String>(
+                  value: _selectedContentType,
+                  isExpanded: true,
+                  items:
+                      _contentTypes
+                          .map(
+                            (t) => DropdownMenuItem(value: t, child: Text(t)),
+                          )
+                          .toList(),
+                  onChanged: (v) => setState(() => _selectedContentType = v!),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _engageCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Topic Engagement (1–5)',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 14),
+                ElevatedButton(
+                  onPressed: _loading ? null : _submit,
+                  child:
+                      _loading
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Get Recommendation'),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+
             const SizedBox(height: 10),
-            const Text('Content Type Preference'),
-            DropdownButton<String>(
-              value: _selectedContentType,
-              isExpanded: true,
-              items:
-                  _contentTypes
-                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                      .toList(),
-              onChanged: (v) => setState(() => _selectedContentType = v!),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _engageCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Topic Engagement (1–5)',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 18),
-            ElevatedButton(
-              onPressed: _loading ? null : _submit,
-              child:
-                  _loading
-                      ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : const Text('Get Recommendation'),
-            ),
-            const SizedBox(height: 20),
+
             if (_recs.isNotEmpty)
               ..._recs.map(
                 (r) => Card(

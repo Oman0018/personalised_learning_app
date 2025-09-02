@@ -38,36 +38,58 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      # ---- Install Android SDK & packages (provides sdkmanager) ----
+      # ---- Set up Android SDK toolchain (cmdline-tools, sdkmanager) ----
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platform-tools
-            platforms;android-34
-            build-tools;34.0.0
 
-      # Fallback to ensure packages exist (some runners need an explicit install)
-      - name: Ensure SDK packages (fallback)
+      # ---- Ensure required SDK packages with retries (API 34) ----
+      - name: Install Android SDK packages (API 34) with retries
+        shell: bash
         run: |
-          yes | sdkmanager --install \
-            "platform-tools" \
-            "platforms;android-34" \
-            "build-tools;34.0.0"
+          set -e
+          echo "sdkmanager version:"
+          sdkmanager --version || true
+
+          # Update repo metadata first (non-fatal if nothing to update)
+          yes | sdkmanager --update || true
+
+          # Retry install a few times to survive flaky mirrors
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: installing SDK packages..."
+            set +e
+            yes | sdkmanager \
+              "platform-tools" \
+              "platforms;android-34" \
+              "build-tools;34.0.0"
+            code=$?
+            set -e
+            if [ $code -eq 0 ]; then
+              echo "✅ SDK packages installed."
+              break
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "sdkmanager failed (exit $code). Retrying in 20s..."
+              sleep 20
+            else
+              echo "❌ Failed to install SDK packages after 3 attempts."
+              exit $code
+            fi
+          done
 
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses || true
 
       # ---- Install Flutter (manual, reliable) ----
       - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        shell: bash
         run: |
           set -e
           echo "Downloading Flutter $FLUTTER_VERSION..."
           curl -L -o flutter.tar.xz \
-            https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
           sudo tar -xJf flutter.tar.xz -C /opt
-          echo "/opt/flutter/bin" >> $GITHUB_PATH
-          echo "/opt/flutter/bin/cache/dart-sdk/bin" >> $GITHUB_PATH
+          echo "/opt/flutter/bin" >> "$GITHUB_PATH"
+          echo "/opt/flutter/bin/cache/dart-sdk/bin" >> "$GITHUB_PATH"
           flutter --version
           flutter doctor -v
 
