@@ -27,3 +27,6 @@ ios/Runner.xcworkspace/
 
 # --- Misc ---
 *.log
+# Flutter generated
+.flutter-plugins
+.flutter-plugins-dependencies
