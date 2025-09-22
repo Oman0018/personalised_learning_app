@@ -1,0 +1,129 @@
+# ------------------------------
+# Miscellaneous
+# ------------------------------
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# ------------------------------
+# IntelliJ / Android Studio
+# ------------------------------
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# ------------------------------
+# VS Code
+# (keep .vscode if you want to share tasks/launch; otherwise uncomment)
+# .vscode/
+
+# ------------------------------
+# Flutter/Dart/Pub
+# ------------------------------
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+coverage/
+linked_*.dart
+unlinked_*.dart
+
+# Symbolication / Obfuscation
+app.*.symbols
+app.*.map.json
+
+# ------------------------------
+# Android
+# ------------------------------
+# Keep Gradle wrapper files in version control (DO NOT ignore these):
+# android/gradlew
+# android/gradlew.bat
+# android/gradle/wrapper/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+# Do NOT ignore these (must be committed):
+# **/android/**/gradle-wrapper.jar    <-- REMOVED
+# **/android/gradlew                  <-- REMOVED
+# **/android/gradlew.bat              <-- REMOVED
+
+# Build variants
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ------------------------------
+# iOS/Xcode
+# ------------------------------
+**/ios/Pods/
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/ServiceDefinitions.json
+
+# ------------------------------
+# Web
+# ------------------------------
+lib/generated_plugin_registrant.dart
+
+# ------------------------------
+# Gradle
+# ------------------------------
+# Keep wrapper jar & scripts (handled above); ignore caches:
+**/android/.gradle
+
+# ------------------------------
+# Python backend / general
+# ------------------------------
+venv/
+.env
+.env.*
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.log
+instance/
+
+# Backend generated artifacts (keep code; ignore heavy outputs)
+backend/models/*.pkl
+backend/models/*.pt
+backend/models/*.onnx
+backend/models/*.h5
+backend/models/fig_*.png
+backend/models/fig_*.txt
+backend/interaction_log.csv
+
+# If your demo CSV is large, ignore it; if it's small and useful for the repo, remove this line
+backend/learner_data.csv
+
+# ------------------------------
+# Node/General
+# ------------------------------
+node_modules/
+
+# ------------------------------
+# Binaries / Archives
+# ------------------------------
+*.apk
+*.aab
+*.zip
+*.tar
+*.tar.gz

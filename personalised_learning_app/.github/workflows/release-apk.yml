@@ -1,0 +1,35 @@
+﻿# --- snip (top of your file unchanged) ---
+
+      - name: Set up Java (Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages (API 34)
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --update || true
+          install() {
+            local pkg="$1"
+            for i in 1 2 3; do
+              echo "Installing $pkg (attempt $i)..."
+              if yes | sdkmanager "$pkg"; then
+                echo "✅ $pkg installed"
+                return 0
+              fi
+              echo "⚠️  $pkg failed; sleeping 12s..."
+              sleep 12
+            done
+            echo "❌ Failed to install $pkg after 3 attempts"
+            return 1
+          }
+          install "platform-tools"
+          install "platforms;android-34"
+          install "build-tools;34.0.0"
+
+# --- keep the rest of your steps (Flutter install, pub get, build, upload) ---
