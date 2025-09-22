@@ -1,0 +1,51 @@
+﻿# --- Flutter / Dart ---
+**/.dart_tool/
+**/.packages
+**/.pub-cache/
+**/build/
+coverage/
+
+# --- Android ---
+**/android/.gradle/
+**/android/.idea/
+**/android/local.properties
+**/android/app/build/
+**/android/build/
+*.keystore
+
+# --- iOS ---
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/App.framework
+**/ios/Runner.xcworkspace/
+
+# --- Editors ---
+.vscode/
+.idea/
+*.iml
+
+# --- Misc ---
+*.log
+# --- Secrets & environment files (DO NOT COMMIT) ---
+# Common env file names
+.env
+.env.*
+*.env
+*.env.*
+
+# Project-specific
+backend/.env
+frontend/.env
+personalised_learning_app/.env
+
+# Other secrets / creds
+*.secret
+*.secrets
+*.key
+*.pem
+*.p12
+*.crt
+*.csr
+*.cert
+*.token

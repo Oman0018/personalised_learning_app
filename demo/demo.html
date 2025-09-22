@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personalised Learning – Local API Demo</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f6f8fb; }
+  .container { max-width:560px; margin:16px auto; padding:16px; }
+  .card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+  .grid { display:grid; gap:12px; grid-template-columns:1fr 1fr; }
+  @media (max-width:520px) { .grid { grid-template-columns:1fr; } }
+  label{ font-size:14px; color:#444; }
+  input,select{ width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; }
+  button{ padding:10px 14px; border:0; border-radius:8px; background:#2563eb; color:#fff; cursor:pointer; }
+  pre{ background:#0f172a; color:#e2e8f0; padding:12px; border-radius:8px; overflow:auto; }
+  small{ color:#666 }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h2>Personalised Learning Recommendation (Local API)</h2>
+    <div class="grid">
+      <div>
+        <label>Average quiz score (0–100)</label>
+        <input type="number" id="score" value="78" min="0" max="100">
+      </div>
+      <div>
+        <label>Avg time spent (min/session)</label>
+        <input type="number" id="time" value="45" min="0">
+      </div>
+      <div>
+        <label>Content type preference</label>
+        <select id="pref">
+          <option value="video" selected>Video</option>
+          <option value="text">Text</option>
+          <option value="interactive">Interactive</option>
+        </select>
+      </div>
+      <div>
+        <label>Topic engagement (0..1)</label>
+        <input type="number" id="eng" value="0.7" min="0" max="1" step="0.1">
+      </div>
+    </div>
+
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+      <button id="go">Get Recommendation</button>
+      <small>API: http://127.0.0.1:8000/recommend</small>
+    </div>
+
+    <pre id="out">// response will appear here</pre>
+  </div>
+</div>
+
+<script>
+document.getElementById('go').addEventListener('click', async () => {
+  const payload = {
+    avg_quiz_score: parseFloat(document.getElementById('score').value),
+    avg_time_spent: parseFloat(document.getElementById('time').value),
+    content_type_pref: document.getElementById('pref').value,
+    topic_engagement: parseFloat(document.getElementById('eng').value)
+  };
+  const res = await fetch('http://127.0.0.1:8000/recommend', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => ({ error: 'invalid json' }));
+  document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+});
+</script>
+</body>
+</html>

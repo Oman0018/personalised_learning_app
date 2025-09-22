@@ -1,0 +1,61 @@
+#.github/workflows/release-apk.yml
+name: Build Release APK
+run-name: Build APK for ${{ github.ref_name || 'manual' }}
+
+on:
+  push:
+    tags: ["v*"]        # keep your tag trigger
+  workflow_dispatch: {} # and manual trigger
+
+# All "run:" steps default to the Flutter app directory
+defaults:
+  run:
+    working-directory: personalised_learning_app
+
+jobs:
+  build-apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # Install the specific SDK bits your project uses (adjust 34 -> 35 if you prefer)
+      - name: Install Android SDK components
+        run: |
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          # If a plugin needs a specific NDK, uncomment:
+          # sdkmanager "ndk;27.0.12077973"
+          yes | sdkmanager --licenses
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.2"
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: personalised_learning_app/build/app/outputs/flutter-apk/app-release.apk

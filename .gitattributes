@@ -1,0 +1,6 @@
+* text=auto
+# Keep these always LF (important for CI & scripts)
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh   text eol=lf
+*.dart text eol=lf
